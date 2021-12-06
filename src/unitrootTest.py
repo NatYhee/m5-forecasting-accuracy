@@ -23,22 +23,38 @@ class searchStationarySeriesADF:
         stationary = False
 
         for diff_order in range(self._max_diff_order + 1):
-            if self._is_stationary:
-                stationary = True
+
+            if diff_order == 0:
+                stationary = self._is_stationary(self._timeseries)
+            else:
+                stationary = self._is_stationary(
+                    self._timeseries.diff(diff_order).dropna()
+                )
+
+            if stationary:
                 return diff_order
 
         if not stationary:
             return -999
 
-    def test_adfuller(self) -> dict:
+    def _is_stationary(self, timeseries: pd.Series) -> bool:
+
+        adfuller_result = self.test_adfuller(timeseries)
+
+        if adfuller_result["p-value"] < self._adf_alpha:
+            return True
+        else:
+            return False
+
+    def test_adfuller(self, timeseries: pd.Series) -> dict:
 
         if self._adf_lag_test is None:
             dftest = adfuller(
-                self._timeseries, autolag="AIC", regression=self._adf_regression
+                timeseries, autolag="AIC", regression=self._adf_regression
             )
         else:
             dftest = adfuller(
-                self._timeseries,
+                timeseries,
                 maxlag=self._adf_test_lag,
                 regression=self._adf_regression,
             )
@@ -56,12 +72,3 @@ class searchStationarySeriesADF:
         adfuller_result = dict(zip(adfuller_properties, list(dftest)))
 
         return adfuller_result
-
-    def _is_stationary(self) -> bool:
-
-        adfuller_result = self.test_adfuller()
-
-        if adfuller_result["p-value"] < self._adf_alpha:
-            return True
-        else:
-            return False
