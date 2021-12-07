@@ -6,7 +6,7 @@ from statsmodels.tsa.stattools import adfuller
 class searchStationarySeriesADF:
     def __init__(
         self,
-        timeseries: pd.series,
+        timeseries: pd.Series,
         max_diff_order: int = 10,
         adf_test_lag: int = None,
         adf_alpha: float = 0.05,
