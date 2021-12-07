@@ -48,7 +48,7 @@ class searchStationarySeriesADF:
 
     def test_adfuller(self, timeseries: pd.Series) -> dict:
 
-        if self._adf_lag_test is None:
+        if self._adf_test_lag is None:
             dftest = adfuller(
                 timeseries, autolag="AIC", regression=self._adf_regression
             )
