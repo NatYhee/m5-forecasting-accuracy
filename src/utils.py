@@ -40,7 +40,7 @@ def gen_weekday_num(day: int) -> int:
         return 5
     elif day == "Saturday":
         return 6
-    elif day == "Sunday":
+    elif day == "Sunday":          
         return 7
 
 
