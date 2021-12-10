@@ -4,6 +4,11 @@ from statsmodels.tsa.stattools import adfuller
 
 
 class searchStationarySeriesADF:
+    """
+    Searching for Integrated Order, different order, the transform time series data from non stationary
+    to stationay if the current state of time series data is non stationary by using Augmented Dickey Fuller ("ADF") test
+    """
+
     def __init__(
         self,
         timeseries: pd.Series,
@@ -12,6 +17,14 @@ class searchStationarySeriesADF:
         adf_alpha: float = 0.05,
         adf_regression: str = "ct",
     ) -> None:
+        """
+        Args:
+            timeseries (pd.Series): time series data
+            max_diff_order (int): maximum number of diff order
+            adf_test_lag (int): maximum lag for using to test ADF (Default: Use Auto Lag)
+            adf_alpha (float): alpha threshold for testing statistical significant
+            adf_refression (str): how we contruct regression model to perform ADF (Default: With Trend and Constant)
+        """
         self._timeseries = timeseries
         self._max_diff_order = max_diff_order
         self._adf_test_lag = adf_test_lag
@@ -19,7 +32,13 @@ class searchStationarySeriesADF:
         self._adf_regression = adf_regression
 
     def get_diff_order_stationary(self) -> int:
+        """
+        Searching for integrated orders by checking which order transform time series data from non stationary
+        to stationary
 
+        Returns:
+            int: required diff order to create stationary series
+        """
         stationary = False
 
         for diff_order in range(self._max_diff_order + 1):
@@ -38,7 +57,14 @@ class searchStationarySeriesADF:
             return -999
 
     def _is_stationary(self, timeseries: pd.Series) -> bool:
+        """
+        Referring from Augmented Dicky Fuller test to determine whether the series is stationary ot not
+        Args:
+            timeseries (pd.Series): time series data
 
+        Returns:
+            bool: boolean value represent stationary or not
+        """
         adfuller_result = self.test_adfuller(timeseries)
 
         if adfuller_result["p-value"] < self._adf_alpha:
@@ -47,7 +73,14 @@ class searchStationarySeriesADF:
             return False
 
     def test_adfuller(self, timeseries: pd.Series) -> dict:
+        """
+        Referring from Augmented Dicky Fuller test to determine whether the series is stationary ot not
+        Args:
+            timeseries (pd.Series): time series data
 
+        Returns:
+            dict: dictionary contain information from Augmented Dicky Fuller test
+        """
         if self._adf_test_lag is None:
             dftest = adfuller(
                 timeseries, autolag="AIC", regression=self._adf_regression
