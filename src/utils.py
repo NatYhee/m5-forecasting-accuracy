@@ -1,31 +1,30 @@
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
+import json
+import os
 
 
+def load_json(*paths):
+    """Loads file and returns a dictionary.
+
+    Args:
+        paths (strs): Relative paths in proper order.
+
+    Returns:
+        dict: the file
+    """
+    fullpath = os.path.join(*paths)
+    with open(fullpath, "r") as file:
+        return json.load(file)
 
 
-def gen_weekday_num(day: int) -> int:
-    if day == "Monday":
-        return 1
-    elif day == "Tuesday":
-        return 2
-    elif day == "Wednesday":
-        return 3
-    elif day == "Thursday":
-        return 4
-    elif day == "Friday":
-        return 5
-    elif day == "Saturday":
-        return 6
-    elif day == "Sunday":
-        return 7
+def save_json(data, *paths):
+    """Saves dictionary to json file.
 
+    Args:
+        data (dict): Dictionary to be saved as yaml.
+        paths (strs): Relative paths in proper order.
+    """
+    fullpath = os.path.join(*paths)
+    with open(fullpath, "w") as file:
+        json.dump(data, file, indent=4, default=str)
 
-def ts_sales_plot(df: pd.DataFrame, col_y_name: str) -> None:
-    sns.lineplot(x=df.index, y=col_y_name, data=df)
-    plt.xlabel("date")
-    plt.ylabel(col_y_name)
-    item_id = str(df["item_id"].unique()[0])
-    plt.title(item_id)
-    plt.show()
