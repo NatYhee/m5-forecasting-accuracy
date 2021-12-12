@@ -27,4 +27,3 @@ def save_json(data, *paths):
     fullpath = os.path.join(*paths)
     with open(fullpath, "w") as file:
         json.dump(data, file, indent=4, default=str)
-
