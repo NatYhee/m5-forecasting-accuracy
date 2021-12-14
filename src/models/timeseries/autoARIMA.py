@@ -1,13 +1,14 @@
 import pandas as pd
 import os
-import tqdm
+from tqdm import tqdm
 
-from unitrootTest import searchStationarySeriesADF
+from src.models.timeseries.unitrootTest import searchStationarySeriesADF
 from src.utils.utils import load_json, save_json
 from sktime.forecasting.arima import AutoARIMA
 
 
 class autoARIMA:
+    
     def __init__(self, asset_dir: str, **params) -> None:
         self._config = load_json(asset_dir, "config.json")
 
@@ -24,35 +25,33 @@ class autoARIMA:
             **params: The training keyword arguments parameters.
         """
 
-        config = {
-            "classname": "autoARUNA",
-            "asset_dir": asset_dir,
-            "data_dir": data_dir,
-            "ARIMA_orders": {},
-        }
-
-        os.makedirs(asset_dir, exist_ok=True)
-        save_json(asset_dir)
-
         data = pd.read_csv(data_dir)
         data["revenue"] = data["revenue"] = data["sales"] * data["sell_price"]
 
         store_ids = autoARIMA._get_store_ids(data)
 
-        for store_id in tqdm(store_ids):
+        for store_id in tqdm(store_ids[0:10]):
             data_store = data[data.store_id == store_id]
-            item_ids = autoARIMA._get_store_ids(data_store)
+            item_ids = autoARIMA._get_item_ids(data_store)
             results = {}
 
             for item_id in tqdm(item_ids, leave=False):
-                data_store_item = data_store_item[data_store_item.item_id == item_id]
-                integrated_order = searchStationarySeriesADF(data_store_item["sales"])
+                data_store_item = data_store[data_store.item_id == item_id]
+                adf_test = searchStationarySeriesADF(data_store_item["sales"])
+                integrated_order = adf_test.get_diff_order_stationary()
+
                 arima_order = autoARIMA._perform_auto_arima(
                     ts=data_store_item["sales"], diff_order=integrated_order
                 )
                 results[str(store_id)] = {str(item_id): arima_order}
         
-        config["ARIMA_orders"] = results
+        os.makedirs(asset_dir, exist_ok=True)
+        config = {
+            "classname": "autoARUNA",
+            "asset_dir": asset_dir,
+            "data_dir": data_dir,
+            "ARIMA_orders": results,
+        }
         save_json(config, asset_dir,  "config.json")
 
     @staticmethod
@@ -96,3 +95,9 @@ class autoARIMA:
         arima_order = model.get_fitted_params()["order"]
 
         return arima_order
+
+
+if __name__ == "__main__":
+    root = 'assets/data'
+    path = os.path.join(root, 'sales_ca1_melted.csv')
+    model = autoARIMA.train(root,path)
