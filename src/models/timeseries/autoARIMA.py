@@ -30,7 +30,7 @@ class autoARIMA:
 
         store_ids = autoARIMA._get_store_ids(data)
 
-        for store_id in tqdm(store_ids[0:10]):
+        for store_id in tqdm(store_ids):
             data_store = data[data.store_id == store_id]
             item_ids = autoARIMA._get_item_ids(data_store)
             results = {}
