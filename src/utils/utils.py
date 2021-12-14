@@ -27,3 +27,26 @@ def save_json(data, *paths):
     fullpath = os.path.join(*paths)
     with open(fullpath, "w") as file:
         json.dump(data, file, indent=4, default=str)
+
+
+def convert_tuple_to_str(tuple):
+    """Convert tuple to string
+
+    Args:
+        tuple (tuple): tuple variable
+    """
+    str = ''
+    for tup in tuple:
+        str += f",{str(tup)}"
+
+    return str[1:]
+
+
+def convert_str_to_tuple(str):
+    """Convert tuple to string
+
+    Args:
+        str (str): str varible
+    """
+    ls_str = list(str)
+    return tuple(ls_str)
