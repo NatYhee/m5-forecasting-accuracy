@@ -35,18 +35,18 @@ def convert_tuple_to_str(tuple):
     Args:
         tuple (tuple): tuple variable
     """
-    str = ''
+    string = ''
     for tup in tuple:
-        str += f",{str(tup)}"
+        string += f",{str(tup)}"
 
-    return str[1:]
+    return string[1:]
 
 
-def convert_str_to_tuple(str):
+def convert_str_to_tuple(string):
     """Convert tuple to string
 
     Args:
         str (str): str varible
     """
-    ls_str = list(str)
+    ls_str = list(string)
     return tuple(ls_str)
