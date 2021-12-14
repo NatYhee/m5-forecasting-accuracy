@@ -3,7 +3,7 @@ import os
 from tqdm import tqdm
 
 from src.models.timeseries.unitrootTest import searchStationarySeriesADF
-from src.utils.utils import load_json, save_json
+from src.utils.utils import load_json, save_json, convert_tuple_to_str
 from sktime.forecasting.arima import AutoARIMA
 
 
@@ -29,13 +29,14 @@ class autoARIMA:
         data["revenue"] = data["revenue"] = data["sales"] * data["sell_price"]
 
         store_ids = autoARIMA._get_store_ids(data)
+        results = {}
 
         for store_id in tqdm(store_ids):
             data_store = data[data.store_id == store_id]
             item_ids = autoARIMA._get_item_ids(data_store)
-            results = {}
+            results[str(store_id)] = {}
 
-            for item_id in tqdm(item_ids, leave=False):
+            for item_id in tqdm(item_ids[0:5], leave=False):
                 data_store_item = data_store[data_store.item_id == item_id]
                 adf_test = searchStationarySeriesADF(data_store_item["sales"])
                 integrated_order = adf_test.get_diff_order_stationary()
@@ -43,7 +44,7 @@ class autoARIMA:
                 arima_order = autoARIMA._perform_auto_arima(
                     ts=data_store_item["sales"], diff_order=integrated_order
                 )
-                results[str(store_id)] = {str(item_id): arima_order}
+                results[str(store_id)].update({str(item_id):convert_tuple_to_str(arima_order)})
         
         os.makedirs(asset_dir, exist_ok=True)
         config = {
