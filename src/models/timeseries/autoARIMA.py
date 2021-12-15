@@ -3,8 +3,10 @@ import os
 from tqdm import tqdm
 
 from src.models.timeseries.unitrootTest import searchStationarySeriesADF
-from src.utils.utils import load_json, save_json, convert_tuple_to_str
+from src.utils.utils import load_json, save_json, convert_tuple_to_str, convert_str_to_tuple
+from src.utils.import_downcasting import import_downcasting
 from sktime.forecasting.arima import AutoARIMA
+from statsmodels.tsa.arima_model import ARIMA
 
 
 class autoARIMA:
@@ -13,8 +15,21 @@ class autoARIMA:
         self._config = load_json(asset_dir, "config.json")
 
     def __call__(self):
-        pass
+        data = pd.read_csv(self._config["data_dir"])
+        data.set_index('date')
+        store_ids = list(self._config["ARIMA_orders"].keys())
 
+        for store_id in tqdm(store_ids):
+            data_store = data[data.store_id == store_id]
+            item_ids = list(self._config["ARIMA_orders"][store_id].keys())
+
+            for item_id in item_ids:
+                data_store_id = data_store[data_store,item_id == item_id]
+                arima_order = convert_str_to_tuple(self._config["ARIMA_orders"][store_id][item_id])
+
+                model = ARIMA(data_store_id['sales'], order=arima_order)
+                model.fit()
+        
     @staticmethod
     def train(asset_dir: str, data_dir: str, **params):
         """Creates asset_dir and saves config.json with optimal ARIMA orders.
@@ -26,6 +41,7 @@ class autoARIMA:
         """
 
         data = pd.read_csv(data_dir)
+        data.set_index('date')
         data["revenue"] = data["revenue"] = data["sales"] * data["sell_price"]
 
         store_ids = autoARIMA._get_store_ids(data)
@@ -36,7 +52,7 @@ class autoARIMA:
             item_ids = autoARIMA._get_item_ids(data_store)
             results[str(store_id)] = {}
 
-            for item_id in tqdm(item_ids[0:5], leave=False):
+            for item_id in tqdm(item_ids, leave=False):
                 data_store_item = data_store[data_store.item_id == item_id]
                 adf_test = searchStationarySeriesADF(data_store_item["sales"])
                 integrated_order = adf_test.get_diff_order_stationary()
