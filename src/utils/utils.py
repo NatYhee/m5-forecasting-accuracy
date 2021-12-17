@@ -48,5 +48,6 @@ def convert_str_to_tuple(string):
     Args:
         str (str): str varible
     """
-    ls_str = list(string)
-    return tuple(ls_str)
+    ls_str = string.split(',')
+    ls_int = [int(str) for str in ls_str]
+    return tuple(ls_int)
