@@ -6,7 +6,7 @@ from src.models.timeseries.unitrootTest import searchStationarySeriesADF
 from src.utils.utils import load_json, save_json, convert_tuple_to_str, convert_str_to_tuple
 from src.utils.import_downcasting import import_downcasting
 from sktime.forecasting.arima import AutoARIMA
-from statsmodels.tsa.arima_model import ARIMA
+from statsmodels.tsa.arima.model import ARIMA
 
 
 class autoARIMA:
@@ -24,11 +24,13 @@ class autoARIMA:
             item_ids = list(self._config["ARIMA_orders"][store_id].keys())
 
             for item_id in item_ids:
-                data_store_id = data_store[data_store,item_id == item_id]
+                data_store_id = data_store[data_store.item_id == item_id]
                 arima_order = convert_str_to_tuple(self._config["ARIMA_orders"][store_id][item_id])
 
                 model = ARIMA(data_store_id['sales'], order=arima_order)
-                model.fit()
+                residual = list(model.fit().resid)
+                data_store_id["arima_residual"] = residual
+                
         
     @staticmethod
     def train(asset_dir: str, data_dir: str, **params):
@@ -94,8 +96,8 @@ class autoARIMA:
         model = AutoARIMA(
             start_p=1,
             start_q=1,
-            max_p=30,
-            max_q=30,
+            max_p=15,
+            max_q=15,
             d=diff_order,
             max_d=diff_order,
             seasonal=False,
@@ -117,4 +119,7 @@ class autoARIMA:
 if __name__ == "__main__":
     root = 'assets/data'
     path = os.path.join(root, 'sales_ca1_melted.csv')
-    model = autoARIMA.train(root,path)
+    # model = autoARIMA.train(root,path)
+
+    agent = autoARIMA(root)
+    agent()
