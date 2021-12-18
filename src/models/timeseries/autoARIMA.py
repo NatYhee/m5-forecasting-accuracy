@@ -31,8 +31,9 @@ class autoARIMA:
 
                 model = ARIMA(data_store_id['sales'], order=arima_order)
                 data_store_id = data_store_id.assign(arima_residual=model.fit().resid)
-                
-
+                # data = data[~(data.store_id == store_id) & ~(data.item_id == item_id)]
+            
+            data = data.append(data_store_id)
         
     @staticmethod
     def train(asset_dir: str, data_dir: str, **params):
