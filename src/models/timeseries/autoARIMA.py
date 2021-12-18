@@ -20,7 +20,7 @@ class autoARIMA:
         data.index = pd.DatetimeIndex(data.index).to_period('D')
         
         store_ids = list(self._config["ARIMA_orders"].keys())
-        print(data.count())
+
         for store_id in tqdm(store_ids):
             data_store = data[data.store_id == store_id]
             item_ids = list(self._config["ARIMA_orders"][store_id].keys())
@@ -31,11 +31,9 @@ class autoARIMA:
 
                 model = ARIMA(data_store_id['sales'], order=arima_order)
                 data_store_id = data_store_id.assign(arima_residual=model.fit().resid)
-                breakpoint()
-                data = data.loc[(data.store_id != store_id) & (data.item_id != item_id)]
+                data = data.loc[~((data.store_id == store_id) & (data.item_id == item_id))]
                 data = data.append(data_store_id)
 
-        print(data.count())
         
     @staticmethod
     def train(asset_dir: str, data_dir: str, **params):
