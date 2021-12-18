@@ -30,8 +30,8 @@ class autoARIMA:
                 arima_order = convert_str_to_tuple(self._config["ARIMA_orders"][store_id][item_id])
 
                 model = ARIMA(data_store_id['sales'], order=arima_order)
-                residual = list(model.fit().resid)
-                data_store_id["arima_residual"] = residual
+                data_store_id = data_store_id.assign(arima_residual=model.fit().resid)
+                
 
         
     @staticmethod
