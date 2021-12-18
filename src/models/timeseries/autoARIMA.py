@@ -16,21 +16,23 @@ class autoARIMA:
 
     def __call__(self):
         data = pd.read_csv(self._config["data_dir"])
-        data.set_index('date')
+        data.set_index('date', inplace=True)
+        data.index = pd.DatetimeIndex(data.index).to_period('D')
+        
         store_ids = list(self._config["ARIMA_orders"].keys())
 
         for store_id in tqdm(store_ids):
             data_store = data[data.store_id == store_id]
             item_ids = list(self._config["ARIMA_orders"][store_id].keys())
 
-            for item_id in item_ids:
+            for item_id in tqdm(item_ids, leave=False):
                 data_store_id = data_store[data_store.item_id == item_id]
                 arima_order = convert_str_to_tuple(self._config["ARIMA_orders"][store_id][item_id])
 
                 model = ARIMA(data_store_id['sales'], order=arima_order)
                 residual = list(model.fit().resid)
                 data_store_id["arima_residual"] = residual
-                
+
         
     @staticmethod
     def train(asset_dir: str, data_dir: str, **params):
