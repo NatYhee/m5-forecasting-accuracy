@@ -3,22 +3,31 @@ import os
 from tqdm import tqdm
 
 from src.models.timeseries.unitrootTest import searchStationarySeriesADF
-from src.utils.utils import load_json, save_json, convert_tuple_to_str, convert_str_to_tuple
+from src.utils.utils import (
+    load_json,
+    save_json,
+    convert_tuple_to_str,
+    convert_str_to_tuple,
+)
 from src.utils.import_downcasting import import_downcasting
 from sktime.forecasting.arima import AutoARIMA
 from statsmodels.tsa.arima.model import ARIMA
+from pathlib import Path
 
 
 class autoARIMA:
-    
     def __init__(self, asset_dir: str, **params) -> None:
         self._config = load_json(asset_dir, "config.json")
 
     def __call__(self):
+        """Using optimal ARIMA order from training to create data file with residual from
+        model generated from optimal ARIMA order for studying qualitative factors for LGBM
+        """
+
         data = pd.read_csv(self._config["data_dir"])
-        data.set_index('date', inplace=True)
-        data.index = pd.DatetimeIndex(data.index).to_period('D')
-        
+        data.set_index("date", inplace=True)
+        data.index = pd.DatetimeIndex(data.index).to_period("D")
+
         store_ids = list(self._config["ARIMA_orders"].keys())
 
         for store_id in tqdm(store_ids):
@@ -27,14 +36,21 @@ class autoARIMA:
 
             for item_id in tqdm(item_ids, leave=False):
                 data_store_id = data_store[data_store.item_id == item_id]
-                arima_order = convert_str_to_tuple(self._config["ARIMA_orders"][store_id][item_id])
+                arima_order = convert_str_to_tuple(
+                    self._config["ARIMA_orders"][store_id][item_id]
+                )
 
-                model = ARIMA(data_store_id['sales'], order=arima_order)
+                model = ARIMA(data_store_id["sales"], order=arima_order)
                 data_store_id = data_store_id.assign(arima_residual=model.fit().resid)
-                data = data.loc[~((data.store_id == store_id) & (data.item_id == item_id))]
+                data = data.loc[
+                    ~((data.store_id == store_id) & (data.item_id == item_id))
+                ]
                 data = data.append(data_store_id)
 
-        
+        path = Path(self._config["data_dir"])
+        parent_path = path.parent.absolute()
+        data.to_csv(os.path.join(parent_path, "data_with_arima_resid.csv"))
+
     @staticmethod
     def train(asset_dir: str, data_dir: str, **params):
         """Creates asset_dir and saves config.json with optimal ARIMA orders.
@@ -46,7 +62,7 @@ class autoARIMA:
         """
 
         data = pd.read_csv(data_dir)
-        data.set_index('date')
+        data.set_index("date")
         data["revenue"] = data["revenue"] = data["sales"] * data["sell_price"]
 
         store_ids = autoARIMA._get_store_ids(data)
@@ -65,8 +81,10 @@ class autoARIMA:
                 arima_order = autoARIMA._perform_auto_arima(
                     ts=data_store_item["sales"], diff_order=integrated_order
                 )
-                results[str(store_id)].update({str(item_id):convert_tuple_to_str(arima_order)})
-        
+                results[str(store_id)].update(
+                    {str(item_id): convert_tuple_to_str(arima_order)}
+                )
+
         os.makedirs(asset_dir, exist_ok=True)
         config = {
             "classname": "autoARUNA",
@@ -74,7 +92,7 @@ class autoARIMA:
             "data_dir": data_dir,
             "ARIMA_orders": results,
         }
-        save_json(config, asset_dir,  "config.json")
+        save_json(config, asset_dir, "config.json")
 
     @staticmethod
     def _get_store_ids(data: pd.DataFrame) -> list:
@@ -120,8 +138,8 @@ class autoARIMA:
 
 
 if __name__ == "__main__":
-    root = 'assets/data'
-    path = os.path.join(root, 'sales_ca1_melted.csv')
+    root = "assets/data"
+    path = os.path.join(root, "sales_ca1_melted.csv")
     # model = autoARIMA.train(root,path)
 
     agent = autoARIMA(root)
