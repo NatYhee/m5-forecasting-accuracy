@@ -35,7 +35,7 @@ def convert_tuple_to_str(tuple):
     Args:
         tuple (tuple): tuple variable
     """
-    string = ''
+    string = ""
     for tup in tuple:
         string += f",{str(tup)}"
 
@@ -48,6 +48,6 @@ def convert_str_to_tuple(string):
     Args:
         str (str): str varible
     """
-    ls_str = string.split(',')
+    ls_str = string.split(",")
     ls_int = [int(str) for str in ls_str]
     return tuple(ls_int)
