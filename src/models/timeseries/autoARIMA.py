@@ -9,7 +9,6 @@ from src.utils.utils import (
     convert_tuple_to_str,
     convert_str_to_tuple,
 )
-from src.utils.import_downcasting import import_downcasting
 from sktime.forecasting.arima import AutoARIMA
 from statsmodels.tsa.arima.model import ARIMA
 from pathlib import Path
@@ -17,7 +16,7 @@ from pathlib import Path
 
 class autoARIMA:
     def __init__(self, asset_dir: str, **params) -> None:
-        self._config = load_json(asset_dir, "config.json")
+        self._config = load_json(asset_dir, "auto-arima-config.json")
 
     def __call__(self):
         """Using optimal ARIMA order from training to create data file with residual from
@@ -41,18 +40,20 @@ class autoARIMA:
                 )
 
                 model = ARIMA(data_store_id["sales"], order=arima_order)
+                data_store_id = data_store_id.assgin(prediction=model.fit().predict)
                 data_store_id = data_store_id.assign(arima_residual=model.fit().resid)
+                data_store_id = data_store_id.assign(arima_mse=model.fit().mse)
+                data_store_id = data_store_id.assign(arima_sse=model.fit().sse)
                 data = data.loc[
                     ~((data.store_id == store_id) & (data.item_id == item_id))
                 ]
                 data = data.append(data_store_id)
 
-        path = Path(self._config["data_dir"])
-        parent_path = path.parent.absolute()
-        data.to_csv(os.path.join(parent_path, "data_with_arima_resid.csv"))
+        path = Path(self._config["asset_dir"])
+        data.to_csv(os.path.join(path, "data_with_arima_resid.csv"))
 
     @staticmethod
-    def train(asset_dir: str, data_dir: str, **params):
+    def train(data_dir: str, asset_dir: str, **params):
         """Creates asset_dir and saves config.json with optimal ARIMA orders.
 
         Args:
@@ -92,7 +93,7 @@ class autoARIMA:
             "data_dir": data_dir,
             "ARIMA_orders": results,
         }
-        save_json(config, asset_dir, "config.json")
+        save_json(config, asset_dir, "auto-arima-config.json")
 
     @staticmethod
     def _get_store_ids(data: pd.DataFrame) -> list:
@@ -135,12 +136,3 @@ class autoARIMA:
         arima_order = model.get_fitted_params()["order"]
 
         return arima_order
-
-
-if __name__ == "__main__":
-    root = "assets/data"
-    path = os.path.join(root, "sales_ca1_melted.csv")
-    # model = autoARIMA.train(root,path)
-
-    agent = autoARIMA(root)
-    agent()
