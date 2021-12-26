@@ -1,10 +1,17 @@
 """Script to train auto arima
 """
 import os
+import argparse
+import pandas as pd
 
 from src.models.timeseries.autoARIMA import autoARIMA
 
 if __name__ == "__main__":
-    root = "assets/data"
-    path = os.path.join(root, "sales_ca1_melted.csv")
-    model = autoARIMA.train(root, path)
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--data-dir", default="assets/data/data_CA_1/dataset.csv")
+    parser.add_argument("--assets-dir", default="assets/data/data_CA_1")
+    args = parser.parse_args()
+
+    agent = autoARIMA()
+    agent.train(args.data_dir, args.assets_dir)
