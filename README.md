@@ -27,3 +27,10 @@ python -m src.jobs.dataset_maker \
     --main-file sales_train_evaluation.csv \
     --store-id CA_1
 ```
+
+### Training Auto Arima
+```bash
+python -m src.jobs.autoarima_trainer \
+    --data-dir assets/data/data_CA_1/dataset.csv \
+    --assets-dir assets/data/data_CA_1
+```
