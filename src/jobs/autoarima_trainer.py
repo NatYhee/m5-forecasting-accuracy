@@ -13,5 +13,4 @@ if __name__ == "__main__":
     parser.add_argument("--assets-dir", default="assets/data/data_CA_1")
     args = parser.parse_args()
 
-    agent = autoARIMA()
-    agent.train(args.data_dir, args.assets_dir)
+    autoARIMA.train(args.data_dir, args.assets_dir)
