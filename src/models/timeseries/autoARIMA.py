@@ -143,7 +143,7 @@ class autoARIMA:
             suppress_warnings=True,
             stepwise=True,
             alpha=0.05,
-            with_intercept=True,
+            with_intercept=False,
         )
 
         model.fit(ts)
