@@ -96,9 +96,7 @@ class autoARIMA:
                 fitted_params = autoARIMA._perform_auto_arima(
                     ts=data_store_item["sales"], diff_order=integrated_order
                 )
-                results[str(store_id)].update(
-                    {str(item_id): str(fitted_params)}
-                )
+                results[str(store_id)].update({str(item_id): str(fitted_params)})
 
                 # For handling multiple trainings
                 os.makedirs(asset_dir, exist_ok=True)
