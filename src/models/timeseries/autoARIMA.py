@@ -81,6 +81,8 @@ class autoARIMA:
                 # For handling multiple trainings
                 if os.path.isfile(os.path.join(asset_dir, "auto-arima-config.json")):
                     temp_config = load_json(asset_dir, "auto-arima-config.json")
+                    results = temp_config["ARIMA_orders"]
+
                     if str(item_id) in temp_config["ARIMA_orders"][store_id].keys():
                         print(
                             f"stroe: {str(store_id)}, item:{str(item_id)} already trained"
