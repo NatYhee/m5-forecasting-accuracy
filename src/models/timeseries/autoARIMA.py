@@ -91,11 +91,11 @@ class autoARIMA:
                 adf_test = searchStationarySeriesADF(data_store_item["sales"])
                 integrated_order = adf_test.get_diff_order_stationary()
 
-                arima_order = autoARIMA._perform_auto_arima(
+                fitted_params = autoARIMA._perform_auto_arima(
                     ts=data_store_item["sales"], diff_order=integrated_order
                 )
                 results[str(store_id)].update(
-                    {str(item_id): convert_tuple_to_str(arima_order)}
+                    {str(item_id): str(fitted_params)}
                 )
 
                 # For handling multiple trainings
@@ -126,7 +126,7 @@ class autoARIMA:
         return item_ids
 
     @staticmethod
-    def _perform_auto_arima(ts: pd.Series, diff_order: int) -> tuple:
+    def _perform_auto_arima(ts: pd.Series, diff_order: int) -> dict:
 
         model = AutoARIMA(
             start_p=1,
@@ -147,6 +147,6 @@ class autoARIMA:
         )
 
         model.fit(ts)
-        arima_order = model.get_fitted_params()["order"]
+        fitted_params = model.get_fitted_params()
 
-        return arima_order
+        return fitted_params
