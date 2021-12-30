@@ -75,6 +75,15 @@ class autoARIMA:
             results[str(store_id)] = {}
 
             for item_id in tqdm(item_ids, leave=False):
+
+                if os.path.isfile(os.path.join(asset_dir, "auto-arima-config.json")):
+                    temp_config = load_json(asset_dir, "auto-arima-config.json")
+                    if str(item_id) in temp_config["ARIMA_orders"].keys():
+                        print(
+                            f"stroe: {str(store_id)}, item:{str(item_id)} already trained"
+                        )
+                        continue
+
                 data_store_item = data_store[data_store.item_id == item_id]
                 adf_test = searchStationarySeriesADF(data_store_item["sales"])
                 integrated_order = adf_test.get_diff_order_stationary()
@@ -86,14 +95,14 @@ class autoARIMA:
                     {str(item_id): convert_tuple_to_str(arima_order)}
                 )
 
-        os.makedirs(asset_dir, exist_ok=True)
-        config = {
-            "classname": "autoARUNA",
-            "asset_dir": asset_dir,
-            "data_dir": data_dir,
-            "ARIMA_orders": results,
-        }
-        save_json(config, asset_dir, "auto-arima-config.json")
+                os.makedirs(asset_dir, exist_ok=True)
+                config = {
+                    "classname": "autoARUNA",
+                    "asset_dir": asset_dir,
+                    "data_dir": data_dir,
+                    "ARIMA_orders": results,
+                }
+                save_json(config, asset_dir, "auto-arima-config.json")
 
     @staticmethod
     def _get_store_ids(data: pd.DataFrame) -> list:
