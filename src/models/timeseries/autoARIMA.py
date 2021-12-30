@@ -78,7 +78,7 @@ class autoARIMA:
 
                 print(f"training store:{str(store_id)}, item:{str(item_id)}")
 
-                #For handling multiple trainings
+                # For handling multiple trainings
                 if os.path.isfile(os.path.join(asset_dir, "auto-arima-config.json")):
                     temp_config = load_json(asset_dir, "auto-arima-config.json")
                     if str(item_id) in temp_config["ARIMA_orders"][store_id].keys():
@@ -98,7 +98,7 @@ class autoARIMA:
                     {str(item_id): convert_tuple_to_str(arima_order)}
                 )
 
-                #For handling multiple trainings
+                # For handling multiple trainings
                 os.makedirs(asset_dir, exist_ok=True)
                 config = {
                     "classname": "autoARUNA",
@@ -143,7 +143,7 @@ class autoARIMA:
             suppress_warnings=True,
             stepwise=True,
             alpha=0.05,
-            with_intercept=True
+            with_intercept=True,
         )
 
         model.fit(ts)
