@@ -49,10 +49,8 @@ class autoARIMA:
                 else:
                     model = ARIMA(endog=data_store_id["sales"], order=arima_order)
 
-                data_store_id = data_store_id.assgin(prediction=model.fit().predict)
+                data_store_id = data_store_id.assgin(prediction=model.fit().predict())
                 data_store_id = data_store_id.assign(arima_residual=model.fit().resid)
-                data_store_id = data_store_id.assign(arima_mse=model.fit().mse)
-                data_store_id = data_store_id.assign(arima_sse=model.fit().sse)
                 data = data.loc[
                     ~((data.store_id == store_id) & (data.item_id == item_id))
                 ]
