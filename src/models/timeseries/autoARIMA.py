@@ -21,12 +21,14 @@ class autoARIMA:
 
     def __call__(self):
         """Using optimal ARIMA order from training to create data file with residual from
-        model generated from optimal ARIMA order for studying qualitative factors for LGBM
+        model generated from optimal ARIMA order for studying qualitative factors for LGBM.
         """
 
         data = pd.read_csv(self._config["data_dir"])
         data.set_index("date", inplace=True)
         data.index = pd.DatetimeIndex(data.index).to_period("D")
+
+        arima_score = {"store_id": [], "item_id": [], "mse": [], "mae": [], "sse": []}
 
         store_ids = list(self._config["ARIMA_orders"].keys())
 
@@ -49,23 +51,34 @@ class autoARIMA:
                 else:
                     model = ARIMA(endog=data_store_id["sales"], order=arima_order)
 
-                data_store_id = data_store_id.assgin(prediction=model.fit().predict())
-                data_store_id = data_store_id.assign(arima_residual=model.fit().resid)
+                model_result = model.fit()
+
+                data_store_id = data_store_id.assgin(prediction=model_result.predict())
+                data_store_id = data_store_id.assign(arima_residual=model_result.resid)
                 data = data.loc[
                     ~((data.store_id == store_id) & (data.item_id == item_id))
                 ]
                 data = data.append(data_store_id)
 
+                arima_score["store_id"].append(store_id)
+                arima_score["item_id"].append(item_id)
+                arima_score["mse"].append(model_result.mse())
+                arima_score["mse"].append(model_result.mae())
+                arima_score["sse"].append(model_result.sse())
+
         path = Path(self._config["asset_dir"])
         data.to_csv(os.path.join(path, "data_with_arima_resid.csv"))
+
+        arima_score_df = pd.DataFrame(arima_score)
+        arima_score_df.to_csv(os.path.join(path, "arima_model_score.csv"))
 
     @staticmethod
     def train(data_dir: str, asset_dir: str, **params):
         """Creates asset_dir and saves config.json with optimal ARIMA orders.
 
         Args:
-            asset_dir (str): Directory to be created to save model assets
-            data_dir (str): Directory with file name of raw data
+            asset_dir (str): Directory to be created to save model assets.
+            data_dir (str): Directory with file name of raw data.
             **params: The training keyword arguments parameters.
         """
 
