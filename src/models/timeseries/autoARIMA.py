@@ -37,11 +37,15 @@ class autoARIMA:
             for item_id in tqdm(item_ids, leave=False):
                 data_store_id = data_store[data_store.item_id == item_id]
 
-                fitted_params = ast.literal_eval(self._config["ARIMA_orders"][store_id][item_id])
-                arima_order = fitted_params['order']
+                fitted_params = ast.literal_eval(
+                    self._config["ARIMA_orders"][store_id][item_id]
+                )
+                arima_order = fitted_params["order"]
 
-                if 'intercept' in fitted_params.keys(): 
-                    model = ARIMA(endog=data_store_id["sales"], order=arima_order, trend='c')
+                if "intercept" in fitted_params.keys():
+                    model = ARIMA(
+                        endog=data_store_id["sales"], order=arima_order, trend="c"
+                    )
                 else:
                     model = ARIMA(endog=data_store_id["sales"], order=arima_order)
 
