@@ -53,7 +53,7 @@ class autoARIMA:
 
                 model_result = model.fit()
 
-                data_store_id = data_store_id.assgin(prediction=model_result.predict())
+                data_store_id = data_store_id.assign(prediction=model_result.predict())
                 data_store_id = data_store_id.assign(arima_residual=model_result.resid)
                 data = data.loc[
                     ~((data.store_id == store_id) & (data.item_id == item_id))
@@ -62,9 +62,9 @@ class autoARIMA:
 
                 arima_score["store_id"].append(store_id)
                 arima_score["item_id"].append(item_id)
-                arima_score["mse"].append(model_result.mse())
-                arima_score["mse"].append(model_result.mae())
-                arima_score["sse"].append(model_result.sse())
+                arima_score["mse"].append(model_result.mse)
+                arima_score["mse"].append(model_result.mae)
+                arima_score["sse"].append(model_result.sse)
 
         path = Path(self._config["asset_dir"])
         data.to_csv(os.path.join(path, "data_with_arima_resid.csv"))
