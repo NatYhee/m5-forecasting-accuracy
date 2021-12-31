@@ -34,3 +34,9 @@ python -m src.jobs.autoarima_trainer \
     --data-dir assets/data/data_CA_1/dataset.csv \
     --assets-dir assets/data/data_CA_1
 ```
+
+### Execute ARIMA form training with AUTO ARIMA
+```bash
+python -m src.jobs.autoarima_execute \
+    --assets-dir assets/data/data_CA_1
+```
