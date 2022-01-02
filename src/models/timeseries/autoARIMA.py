@@ -70,7 +70,7 @@ class autoARIMA:
         data.to_csv(os.path.join(path, "data_with_arima_resid.csv"))
 
         arima_score_df = pd.DataFrame(arima_score)
-        arima_score_df.to_csv(os.path.join(path, "arima_model_score.csv"))
+        arima_score_df.to_csv(os.path.join(path, "arima_model_score.csv"), index=False)
 
     @staticmethod
     def train(data_dir: str, asset_dir: str, **params):
