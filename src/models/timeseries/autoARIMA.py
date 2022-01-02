@@ -63,7 +63,7 @@ class autoARIMA:
                 arima_score["store_id"].append(store_id)
                 arima_score["item_id"].append(item_id)
                 arima_score["mse"].append(model_result.mse)
-                arima_score["mse"].append(model_result.mae)
+                arima_score["mae"].append(model_result.mae)
                 arima_score["sse"].append(model_result.sse)
 
         path = Path(self._config["asset_dir"])
