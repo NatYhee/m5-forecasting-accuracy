@@ -54,7 +54,8 @@ class searchStationarySeriesADF:
                 return diff_order
 
         if not stationary:
-            return -999
+            # not go furthur than integration order at 11
+            return 11
 
     def _is_stationary(self, timeseries: pd.Series) -> bool:
         """
