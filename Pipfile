@@ -12,6 +12,7 @@ numpy = "*"
 lightgbm = "*"
 tqdm = "*"
 pathlib = "*"
+seaborn = "*"
 
 [dev-packages]
 ipykernel = "*"
