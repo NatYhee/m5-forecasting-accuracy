@@ -23,8 +23,7 @@ class PdfFile:
         """Visualizes the metric scores
 
         Args:
-            orders (pd.DataFrame): The orders DataFrame.
-            title (str): To be displayed at the top of the figure.
+            data (pd.DataFrame): The Dataframe contains sales and forecasts data
         """
         # fill missing days as nan to break the lines in the plot
         data.sales = data.sales.asfreq("D")
