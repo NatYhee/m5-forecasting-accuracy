@@ -29,7 +29,7 @@ class PdfFile:
         data.sales = data.sales.asfreq("D")
         data.prediction = data.prediction.asfreq("D")
 
-        fig = figure.Figure(figsize=(12, 12))
+        fig = figure.Figure(figsize=(8, 8))
         axs = fig.subplots(squeeze=False, sharex=True, sharey=True)
         axs = axs.flat
 
