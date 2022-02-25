@@ -170,3 +170,33 @@ class autoARIMA:
         fitted_params = model.get_fitted_params()
 
         return fitted_params
+
+    @staticmethod
+    def _gat_wmape(data: pd.DataFrame, resid_column: str) -> pd.DataFrame:
+        data.abs_residual = data[resid_column].abs()
+        sum_abs_residual = (
+            data[["store_id", "item_id", "abs_residual"]]
+            .groupby(["store_id", "item_id"])
+            .abs_residual.sum()
+            .reset_index()
+        )
+        sum_actual = (
+            data[["store_id", "item_id", "sales"]]
+            .groupby(["store_id", "item_id"])
+            .sales.sum()
+            .reset_index()
+        )
+
+        sum_abs_residual.rename(
+            columns={"abs_residual": "sum_abs_residual"}, inplace=True
+        )
+
+        wmape_df = pd.merge(
+            left=sum_abs_residual,
+            right=sum_actual,
+            on=["store_id", "item_id"],
+            how=left,
+        )
+        wmape_df["wmape"] = wmape_df["sum_abs_residual"] / wmape_df["sales"]
+
+        return wmape_df
