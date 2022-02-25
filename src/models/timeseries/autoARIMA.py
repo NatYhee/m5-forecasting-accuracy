@@ -195,7 +195,7 @@ class autoARIMA:
             left=sum_abs_residual,
             right=sum_actual,
             on=["store_id", "item_id"],
-            how=left,
+            how="left"
         )
         wmape_df["wmape"] = wmape_df["sum_abs_residual"] / wmape_df["sales"]
 
