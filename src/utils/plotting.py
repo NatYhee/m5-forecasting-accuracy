@@ -35,6 +35,7 @@ class PdfFile:
 
         axs[0].plot(data.index, data.sales, label="sales", alpha=0.5, c="C0")
         axs[0].plot(data.index, data.prediction, label="prediction", alpha=0.5, c="C1")
+        axs[0].legend(frameon=False)
 
         fig.suptitle(title)
 
