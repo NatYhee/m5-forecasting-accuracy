@@ -66,10 +66,15 @@ class autoARIMA:
                 arima_score["mae"].append(model_result.mae)
                 arima_score["sse"].append(model_result.sse)
 
+        data["abs_residual"] = data.arima_residual.abs()
         path = Path(self._config["asset_dir"])
         data.to_csv(os.path.join(path, "data_with_arima_resid.csv"))
 
+        wampe_df = self._gat_wmape(data, "abs_residual")
         arima_score_df = pd.DataFrame(arima_score)
+        arima_score_df = pd.merge(
+            left=arima_score_df, right=wampe_df, on=["store_id, sku_id"], how="left"
+        )
         arima_score_df.to_csv(os.path.join(path, "arima_model_score.csv"), index=False)
 
     @staticmethod
@@ -172,10 +177,20 @@ class autoARIMA:
         return fitted_params
 
     @staticmethod
-    def _gat_wmape(data: pd.DataFrame, resid_column: str) -> pd.DataFrame:
-        data.abs_residual = data[resid_column].abs()
+    def _gat_wmape(data: pd.DataFrame, abs_resid_column: str) -> pd.DataFrame:
+        """
+        Method to calculate WMAPE, Weighted Mean Average Percentage of Error.
+
+        Args:
+            data (pd.DataFrame): Dataframe contain information of prediction and actual sales.
+            abs_resid_column (str): Column name of absolute value of prediciton residual.
+
+        Returns:
+            pd.DataFrame: Dataframe contain information of WMAPE of each store and sku_id
+        """
+
         sum_abs_residual = (
-            data[["store_id", "item_id", "abs_residual"]]
+            data[["store_id", "item_id", abs_resid_column]]
             .groupby(["store_id", "item_id"])
             .abs_residual.sum()
             .reset_index()
@@ -195,7 +210,7 @@ class autoARIMA:
             left=sum_abs_residual,
             right=sum_actual,
             on=["store_id", "item_id"],
-            how="left"
+            how="left",
         )
         wmape_df["wmape"] = wmape_df["sum_abs_residual"] / wmape_df["sales"]
 
