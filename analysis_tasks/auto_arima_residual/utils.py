@@ -104,4 +104,7 @@ def get_wmape_custom_groupby(data: pd.DataFrame, resid_column: str, groupby_keys
     )
     wmape_df["wmape"] = wmape_df["sum_abs_residual"] / wmape_df["sales"]
 
+    wmape_df.sort_values(by="wmape", ascending=False, inplace=True)
+    wmape_df["pct_obs"] = wmape_df["num_obs"] / wmape_df.num_obs.sum()
+
     return wmape_df
