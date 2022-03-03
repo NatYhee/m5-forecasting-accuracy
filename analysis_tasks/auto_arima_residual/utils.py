@@ -87,11 +87,11 @@ def get_wmape_custom_groupby(data: pd.DataFrame, resid_column: str, groupby_keys
     actual_columns = copy.deepcopy(groupby_keys)
     actual_columns.append("sales")
 
-    sum_abs_residual = (
-        data[residual_columns].groupby(groupby_keys).abs_residual.sum().reset_index()
-    )
+    sum_abs_residual = data[residual_columns].groupby(groupby_keys).agg({"abs_residual": ["sum", "mean", "count"]})
+    sum_abs_residual.columns = ["sum_abs_residual", "mean_abs_residual", "num_obs"]
+    sum_abs_residual = sum_abs_residual.reset_index()
+
     sum_actual = data[actual_columns].groupby(groupby_keys).sales.sum().reset_index()
-    sum_abs_residual.rename(columns={"abs_residual": "sum_abs_residual"}, inplace=True)
     wmape_df = pd.merge(
         left=sum_abs_residual, right=sum_actual, on=groupby_keys, how="left"
     )
